@@ -2,10 +2,14 @@ list.addEventListener('click', clickOnTask, false);
 
 project.addEventListener("click", clickOnProject, false);
 
+document.addEventListener("DOMContentLoaded", function() {
+    renderProjects()
+    renderTasks();
+});
+
 let projects = [];
 let tasks = [];
-
-
+let selectedProject;
 
 function clickOnTask (event) {
     if(event.target.className === "close") {
@@ -21,12 +25,11 @@ function clickOnTask (event) {
     }
 }
 
-let selectedProject;
 function clickOnProject (event) {
     if(event.target.className === "close") {
         event.target.parentElement.remove();
         for(let i = 0; i<tasks.length; i++) {
-                if(tasks[i].projectId === selectedProject.name) {
+                if(tasks[i].projectId === selectedProject.id) {
                     tasks[i].remove();
                 }
         }
@@ -47,7 +50,7 @@ function select(node) {
     selectedProject = node;
     selectedProject.firstChild.classList.add("selected");
     for(let i = 0; i<tasks.length; i++){
-        if (tasks[i].projectId != selectedProject.name) {
+        if (tasks[i].projectId != selectedProject.id) {
             tasks[i].hidden = true;
         }
         else {
@@ -76,8 +79,9 @@ function newElement() {
 	li.appendChild(btnEdit);
     btnClose.innerText = " X";
     li.appendChild(btnClose);
-    li.projectId = selectedProject.name;
+    li.projectId = selectedProject.id;
     li.name = t.innerText;
+    li.id = tasks.length + 1;
     setTask(JSON.stringify(li))
     tasks.push(li);
 }
@@ -103,8 +107,10 @@ function newProject() {
     btnClose.innerText = " X";
     li.appendChild(btnClose);
     li.name = t.innerText;
+    li.id = projects.length+1;
     projects.push(li);
     setProject(JSON.stringify(li));
+    //!!!!!!!!!!!!!!!!!!!!!!1
     select(li);
 }
 
@@ -138,6 +144,14 @@ function setTask(data) {
     });
 }
 
+function deleteProject() {
+
+}
+
+function deleteTask() {
+
+}
+
 function getTasks() {
     return fetch("http://localhost:3000/tasks")
     .then(function(response) {
@@ -156,7 +170,6 @@ function renderTasks() {
         }
         document.getElementById('list').innerHTML = "";
         tasks = JSON.parse(tasksDTO);
-        alert(JSON.stringify(tasks));
         let length = tasks.length;
         for(let i = 0; i<length; i++) {
             let li = document.createElement('li');
@@ -175,13 +188,11 @@ function renderTasks() {
             li.appendChild(btnClose);
             li.projectId = tasks[i].projectId;
             li.name = tasks[i].name;
+            li.id = i+1;
             tasks.push(li);
         }
     })
-    .then( function() {
-        select(selectedProject);
-    })
-    .catch(console.error);
+        .catch(console.error);
 }
 
 function renderProjects() {
@@ -209,13 +220,11 @@ function renderProjects() {
             li.appendChild(btnEdit);
             btnClose.innerText = " X";
             li.appendChild(btnClose);
-            li.name = projects[i].name; 
-            projects.push(li);
+            li.name = projects[i].name;
+            li.id = i+1;
+            select(li);
         }
     })
-    .then( function() {
-        select(selectedProject);
-    })
-    .catch(console.error);
+        .catch(console.error);
 }
 
